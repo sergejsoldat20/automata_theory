@@ -16,20 +16,25 @@ class DFA:
         return current_state in self.final_states         
             
 
-    def has_next_state(self, state):
-        reachable_sates = set()
-        transition_states = self.transitions[state]
+    def get_next_states(self, state):
+        next_states = set()
         for character in self.alphabet:
-            if character in transition_states[character]:
-                reachable_state = transition_states[character]
-                reachable_sates.add(reachable_state)
-        return reachable_sates;
+            next_states.add(self.transitions[state][character])
+        return next_states
 
 
     def get_unreachable_state(self):
-        # we add start state to reachable states
-        reachable_states = set()
-        for state in self.states:
-           reachable_states.add(self.has_next_state(state))
-        return reachable_states;
+        # we add start state to visible states
+        visited_states = set() 
+        visited_states.add(self.start_state)
+        reachable_states_size = 0
+        while(reachable_states_size < len(visited_states)):
+            new_states = set()
+            reachable_states_size = len(visited_states)
+            for state in visited_states:
+                new_states.update(self.get_next_states(state))
+            visited_states.update(new_states)
+        return self.states - visited_states
+
+
 
