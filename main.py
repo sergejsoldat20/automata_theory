@@ -30,10 +30,10 @@ automata = DFA(start_state, final_states, transition_function, alphabet, states)
 
 # print(automata.get_equivalent_states())
 
-# equivalent_pairs = automata.get_equivalent_states()
+equivalent_pairs = automata.get_equivalent_states()
 
-# print(automata.get_equivalent_classes(equivalent_pairs))
-
+print(automata.get_equivalent_classes(equivalent_pairs))
+print("---------------------------------")
 start_state = 'q0'
 alphabet = {'a', 'b'}
 transition_function = {

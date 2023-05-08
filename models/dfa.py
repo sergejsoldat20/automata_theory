@@ -37,6 +37,7 @@ class DFA:
             visited_states.update(new_states)
         return self.states - visited_states
     
+    # we generate state pairs where first will be final and second won't be final state
     def generate_state_final_pairs(self):
         valid_pairs = set()
         for state1 in self.states:
@@ -48,6 +49,7 @@ class DFA:
                         valid_pairs.add((state2, state1))
         return valid_pairs
     
+    # we generate all posible state pairs with different states
     def generate_state_pairs(self):
         all_pairs = set()
         for state1 in self.states:
@@ -92,7 +94,8 @@ class DFA:
             final_pairs.update(new_pairs)
 
         return state_pairs
-                        
+
+    # from unmarked pairs we find classes of equivalence                    
     def get_equivalent_classes(self, unmarked_pairs):
         print(unmarked_pairs)
         equivalent_classes = list()
@@ -110,7 +113,9 @@ class DFA:
                     equivalent_classes_changed = False
                 else:
                     equivalent_classes.append(pair)
+        # we find states that are not part of equivalent classes
+        states_not_in_eq_classes = [state for state in self.states if state not in set.union(*map(set, equivalent_classes))] 
         # return set(equivalent_states)
-        return equivalent_classes
+        return set(states_not_in_eq_classes + equivalent_classes)
 
                      
