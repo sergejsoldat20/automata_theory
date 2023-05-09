@@ -22,8 +22,8 @@ class DFA:
             next_states.add(self.transitions[state][character])
         return next_states
 
-    # this method finds unreachable states
-    def get_unreachable_state(self):
+    # this method finds and removes unreachable states
+    def remove_unreachable_states(self):
         # we add start state to visited_states
         visited_states = set() 
         visited_states.add(self.start_state)
@@ -35,7 +35,12 @@ class DFA:
             for state in visited_states:
                 new_states.update(self.get_next_states(state))
             visited_states.update(new_states)
-        return self.states - visited_states
+        states_to_remove = self.states - visited_states
+
+        # we now remove unreachable states from set of states and from transition function
+        for state in states_to_remove:
+            del self.transitions[state]
+        self.states = self.states - states_to_remove
     
     # we generate state pairs where first will be final and second won't be final state
     def generate_state_final_pairs(self):
@@ -75,7 +80,7 @@ class DFA:
         return result_pairs
     
     # this method finds unmarked pairs 
-    def get_equivalent_states(self):
+    def get_unmarked_pairs(self):
         state_pairs = self.generate_state_pairs() - self.generate_state_final_pairs()
         final_pairs = self.generate_state_final_pairs()
 
@@ -117,5 +122,41 @@ class DFA:
         states_not_in_eq_classes = [state for state in self.states if state not in set.union(*map(set, equivalent_classes))] 
         # return set(equivalent_states)
         return set(states_not_in_eq_classes + equivalent_classes)
+        
 
-                     
+    def create_new_transition_function(self):
+        # first we remove unreachble states
+        self.remove_unreachable_states()
+        
+        # now we find equivalent classes 
+        equivalent_classes = self.get_equivalent_classes(self.get_unmarked_pairs()) 
+
+        new_transition_function = {}
+        for state in equivalent_classes:
+            new_transition_function[''.join(list(state))] = {}
+        print(equivalent_classes)
+
+        for element in equivalent_classes:
+            for state in self.states:
+                print(state)
+                if state == element:
+                    for character in self.alphabet:
+                        next_state =  self.transitions[state][character]
+                        new_transition_function[''.join(list(state))][character] = self.find_next_state_eq(next_state, equivalent_classes)
+
+                elif state in element:   
+                    for character in self.alphabet:
+                        next_state =  self.transitions[state][character]
+                        if next_state in element:
+                            new_transition_function[''.join(list(element))][character] = ''.join(list(element)) 
+                        else: 
+                            new_transition_function[''.join(list(element))][character] = self.find_next_state_eq(next_state, equivalent_classes)
+       
+        return new_transition_function
+       
+
+        
+    def find_next_state_eq(self, state, equivalent_classes):
+        for element in equivalent_classes:
+            if state in element:
+                return ''.join(list(element))    
