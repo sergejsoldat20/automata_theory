@@ -1,5 +1,6 @@
 from models.dfa import DFA
 import itertools
+from helpers.fa_helper import FiniteAutomataHelper
 
 start_state = 'q0'
 alphabet = {'a', 'b'}
@@ -34,8 +35,8 @@ automata = DFA(start_state, final_states, transition_function, alphabet, states)
 
 # print(automata.get_equivalent_classes(equivalent_pairs))
 
-tf = automata.create_new_transition_function()
-print(tf)
+# tf = automata.minimize_dfa()
+# print(tf)
 print("---------------------------------")
 start_state = 'q0'
 alphabet = {'a', 'b'}
@@ -56,5 +57,12 @@ automata = DFA(start_state, final_states, transition_function, alphabet, states)
 # print(automata.get_equivalent_classes(equivalent_pairs))
 
 # print(''.join(sorted(list(states))))
-tf = automata.create_new_transition_function()
-print(tf)
+# tf = automata.minimize_dfa()
+# print(tf)
+
+dfa = {
+    'q0': {'a': 'q1', 'a': 'q2'},
+    'q1': {'a': 'q2', 'b': 'q0'},
+    'q2': {'a': 'q2', 'bs': 'q2'}
+}
+print(FiniteAutomataHelper.dfa_to_regex(dfa))

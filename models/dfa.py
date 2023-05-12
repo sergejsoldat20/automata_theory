@@ -1,4 +1,5 @@
 class DFA:
+
     def __init__(self, start_state, final_states, transitions, alphabet, states):
         self.start_state = start_state
         self.final_states = final_states
@@ -124,21 +125,25 @@ class DFA:
         return set(states_not_in_eq_classes + equivalent_classes)
         
 
-    def create_new_transition_function(self):
+    def minimize_dfa(self):
         # first we remove unreachble states
         self.remove_unreachable_states()
         
         # now we find equivalent classes 
         equivalent_classes = self.get_equivalent_classes(self.get_unmarked_pairs()) 
 
+        # we add keys in new_transition_function
         new_transition_function = {}
         for state in equivalent_classes:
             new_transition_function[''.join(list(state))] = {}
-        print(equivalent_classes)
+        # print(equivalent_classes)
 
+        # we loop through every element in states and equivalent_classes 
+        # we check where states lead in old transition_function
+        # if next  state is inside that element than it is looping to itself, else it is showing to other state
         for element in equivalent_classes:
             for state in self.states:
-                print(state)
+                # print(state)
                 if state == element:
                     for character in self.alphabet:
                         next_state =  self.transitions[state][character]
@@ -151,11 +156,10 @@ class DFA:
                             new_transition_function[''.join(list(element))][character] = ''.join(list(element)) 
                         else: 
                             new_transition_function[''.join(list(element))][character] = self.find_next_state_eq(next_state, equivalent_classes)
-       
+        self.transitions = new_transition_function
         return new_transition_function
-       
-
-        
+ 
+    # this function returns new state from equivalent_classes for old state 
     def find_next_state_eq(self, state, equivalent_classes):
         for element in equivalent_classes:
             if state in element:
