@@ -12,7 +12,8 @@ class FiniteAutomataHelper:
             state1: {state2: '' for state2 in sorted(list(automata.states))} for state1 in sorted(list(automata.states))
         }
 
-        # we go through transition function and set
+        # we go through transition function and set hop_table[state1][state2] to character
+        # state1 has transition to state2
         for state, transition in automata.transitions.items():
             for character, next_state in transition.items():
                 if hop_table[state][next_state] == '':
