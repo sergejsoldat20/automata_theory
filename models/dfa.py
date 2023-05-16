@@ -157,6 +157,14 @@ class DFA:
                         else: 
                             new_transition_function[''.join(list(element))][character] = self.find_next_state_eq(next_state, equivalent_classes)
         self.transitions = new_transition_function
+
+        # set new start state 
+        self.start_state = self.find_next_state_eq(self.start_state, equivalent_classes)
+        new_final_states = set()
+        for f_state in self.final_states:
+            new_final_states.add(self.find_next_state_eq(f_state, equivalent_classes))
+        self.final_states = new_final_states
+        
         return new_transition_function
  
     # this function returns new state from equivalent_classes for old state 
