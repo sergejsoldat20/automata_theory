@@ -1,7 +1,5 @@
 from models.dfa import DFA
 from models.nfa import NFA
-from models.enfa import ENFA
-import json
 
 
 class FiniteAutomataHelper:
@@ -131,3 +129,98 @@ class FiniteAutomataHelper:
             hop_table = {st: {to: v for to, v in inp.items() if to != state}
                          for st, inp in hop_table.items() if st != state}
         return hop_table[state_initial][state_final]
+
+    # this method converts nfa to dfa
+    def nfa_to_dfa(self, nfa: NFA):
+       #  start_state = {nfa.start_state}
+        dfa_states = set()
+        dfa_states.add((nfa.start_state, ))
+        loop_states = set()
+        loop_states.add((nfa.start_state, ))
+
+        transition_matrix = list()
+        # print(loop_states)
+        # result_states = set()
+        states_len = 0
+        while (states_len < len(dfa_states)):
+            states_len = len(dfa_states)
+            dfa_states.update(loop_states)
+            for state_set in loop_states:
+                for character in nfa.alphabet:
+                    next_states = self.get_next_states(
+                        state_set, character, nfa)
+                    if tuple(next_states) not in dfa_states:
+                        dfa_states.add(tuple(next_states))
+                    # print(next_states)
+            loop_states = dfa_states - loop_states
+
+        dfa_transition_function = dict()
+
+        for item in dfa_states:
+            dfa_transition_function[self.join_tuple_elements(item)] = dict()
+
+        for states_tuple in dfa_states:
+            for character in nfa.alphabet:
+                dfa_transition_function[self.join_tuple_elements(
+                    states_tuple)][character] = self.join_tuple_elements(self.get_next_states(states_tuple, character, nfa))
+
+        for item in dfa_transition_function.items():
+            print(item)
+        print("----------------------")
+        # we set new states for dfa, if we have given states like q0q1q2 they will be changed with p0
+        # we use dictionary that is mapping old states combination with new states
+        states_mapping = dict()
+        states_counter = 0
+        for state_tuple in dfa_states:
+            states_mapping[self.join_tuple_elements(
+                state_tuple)] = 'p' + str(states_counter)
+            states_counter = states_counter + 1
+
+        # now we change old transition function with new transition function with new states
+        new_dfa_transition = dict()
+
+        for state, transition in dfa_transition_function.items():
+            new_state = states_mapping[state]
+            new_transitions = {}
+            for symbol, target_state in transition.items():
+                new_target_state = states_mapping[target_state]
+                new_transitions[symbol] = new_target_state
+            new_dfa_transition[new_state] = new_transitions
+
+        # now we set new states, start_state and final_states
+        new_final_states = set()
+
+        # print("-----------")
+        for final_state in nfa.final_states:
+            for state_tuple in dfa_states:
+                if final_state in state_tuple:
+                    # print(state_tuple)
+                    new_final_states.add(
+                        states_mapping[self.join_tuple_elements(state_tuple)])
+
+        new_start_state = ''
+
+        for state_tuple in dfa_states:
+            if nfa.start_state in state_tuple and len(state_tuple) == 1:
+                new_start_state = states_mapping[self.join_tuple_elements(
+                    state_tuple)]
+                # print(state_tuple)
+                # print("-------------------")
+                # print(new_start_state)
+
+        new_states = set(states_mapping.values())
+        # print("new states")
+        # print(new_states)
+
+        dfa = DFA(new_start_state, new_final_states,
+                  new_dfa_transition, nfa.alphabet, new_states)
+        return dfa
+
+    def get_next_states(self, states, character, nfa: NFA):
+        next_states = set()
+        for state in states:
+            next_states |= nfa.transitions.get((state, character), set())
+        return tuple(sorted(next_states))
+
+    def join_tuple_elements(self, states_tuple: tuple):
+        return ''.join(states_tuple)

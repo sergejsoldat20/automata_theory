@@ -1,19 +1,13 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 # Define the DFA
-dfa = {
-    'q0': {'a': 'q6', 'b': 'q1'},
-    'q1': {'a': 'q2', 'b': 'q4'},
-    'q2': {'a': 'q5', 'b': 'q3'},
-    'q3': {'a': 'q8', 'b': 'q3'},
-    'q4': {'a': 'q6', 'b': 'q8'},
-    'q5': {'a': 'q2', 'b': 'q3'},
-    'q6': {'a': 'q4', 'b': 'q7'},
-    'q7': {'a': 'q8', 'b': 'q7'},
-    'q8': {'a': 'q7', 'b': 'q4'},
-    'q9': {'a': 'q10', 'b': 'q8'},
-    'q10': {'a': 'q3', 'b': 'q9'},
-}
+
+transitions = {
+    'p3': {'b': 'p3', 'a': 'p3'},
+    'p1': {'b': 'p2', 'a': 'p1'},
+    'p5': {'b': 'p2', 'a': 'p1'},
+    'p2': {'b': 'p3', 'a': 'p4p0'},
+    'p4p0': {'b': 'p4p0', 'a': 'p4p0'}}
 
 # Create a directed graph
 graph = nx.DiGraph()
