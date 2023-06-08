@@ -23,8 +23,11 @@ states = {'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10'}
 automata = DFA(start_state, final_states,
                transition_function, alphabet, states)
 
-print(automata.minimize_dfa().transitions)
+print(automata.minimize_dfa())
 
+print(automata.states)
+
+'''
 # this is already minimized
 transition_function = {
     'p0': {'a': 'p1', 'b': 'p0'},
@@ -68,4 +71,66 @@ start_state = 'q0'
 alphabet = {'1', '0'}
 
 dfa = DFA(start_state, final_states, transition_function, alphabet, states)
+# print(dfa.minimize_dfa().transitions)
+
+
+# this also can be minimized
+transition_function = {
+    'q0': {'1': 'q2', '0': 'q1'},
+    'q1': {'1': 'q3', '0': 'q2'},
+    'q2': {'1': 'q4', '0': 'q2'},
+    'q3': {'1': 'q3', '0': 'q3'},
+    'q4': {'1': 'q4', '0': 'q4'},
+    'q5': {'1': 'q4', '0': 'q4'},
+}
+final_states = {'q3', 'q4'}
+states = {'q0', 'q1', 'q2', 'q3', 'q4', 'q5'}
+start_state = 'q0'
+alphabet = {'1', '0'}
+
+
+dfa = DFA(start_state, final_states, transition_function, alphabet, states)
+print("--------------------")
+for item in dfa.minimize_dfa().transitions.items():
+    print(item)
+
+
+# this dfa can be minimized
+start_state = 'q0'
+alphabet = {'a', 'b'}
+transition_function = {
+    'q0': {'a': 'q2', 'b': 'q2'},
+    'q1': {'a': 'q2', 'b': 'q2'},
+    'q2': {'a': 'q3', 'b': 'q3'},
+    'q3': {'a': 'q3', 'b': 'q1'},
+}
+final_states = {'q2'}
+states = {'q0', 'q1', 'q2', 'q3'}
+dfa = DFA(start_state, final_states,
+          transition_function, alphabet, states)
+
+print("--------------------")
+for item in dfa.minimize_dfa().transitions.items():
+    print(item)
+print(dfa.states)
+
+
+# this also can be minimized
+transition_function = {
+    'q0': {'1': 'q3', '0': 'q1'},
+    'q1': {'1': 'q3', '0': 'q0'},
+    'q2': {'1': 'q4', '0': 'q1'},
+    'q3': {'1': 'q5', '0': 'q5'},
+    'q4': {'1': 'q3', '0': 'q3'},
+    'q5': {'1': 'q5', '0': 'q5'},
+}
+final_states = {'q3', 'q5'}
+states = {'q0', 'q1', 'q2', 'q3', 'q4', 'q5'}
+start_state = 'q0'
+alphabet = {'1', '0'}
+
+
+dfa = DFA(start_state, final_states, transition_function, alphabet, states)
+print("--------------------")
 print(dfa.minimize_dfa().transitions)
+'''

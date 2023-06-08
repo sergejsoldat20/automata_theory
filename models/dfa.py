@@ -103,7 +103,7 @@ class DFA:
 
     # from unmarked pairs we find classes of equivalence
     def get_equivalent_classes(self, unmarked_pairs):
-        print(unmarked_pairs)
+        # print(unmarked_pairs)
         equivalent_classes = list()
         equivalent_classes_changed = False
 
@@ -143,7 +143,7 @@ class DFA:
         for state in equivalent_classes:
             new_transition_function[''.join(list(state))] = {}
 
-        print(equivalent_classes)
+        # print(equivalent_classes)
 
         # we loop through every element in states and equivalent_classes
         # we check where states lead in old transition_function
@@ -178,10 +178,8 @@ class DFA:
         self.final_states = new_final_states
 
         # set states to new states
-        new_states = set()
-        for eq_class in equivalent_classes:
-            new_states.add(''.join(eq_class))
-        self.states = new_states
+
+        self.states = set(new_transition_function.keys())
         return self
 
     # this function returns new state from equivalent_classes for old state
