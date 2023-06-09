@@ -1,3 +1,6 @@
+import helpers.graph_helper as graph_helper
+
+
 class DFA:
 
     def __init__(self, start_state, final_states, transitions, alphabet, states):
@@ -25,23 +28,22 @@ class DFA:
 
     # this method finds and removes unreachable states
     def remove_unreachable_states(self):
-        # we add start state to visited_states
-        visited_states = set()
-        visited_states.add(self.start_state)
-        reachable_states_size = 0
-        # we go through states and find reachable states
-        while (reachable_states_size < len(visited_states)):
-            new_states = set()
-            reachable_states_size = len(visited_states)
-            for state in visited_states:
-                new_states.update(self.get_next_states(state))
-            visited_states.update(new_states)
-        states_to_remove = self.states - visited_states
+        # we find reachable states using bfs algorithm
+        reachable_states = set(graph_helper.bfs_dfa(
+            self.transitions, self.start_state))
 
-        # we now remove unreachable states from set of states and from transition function
-        for state in states_to_remove:
-            del self.transitions[state]
-        self.states = self.states - states_to_remove
+        # now we remove unreachable states from states and final_states
+        unreachable_states = self.states - reachable_states
+        self.states = reachable_states
+
+        for state in unreachable_states:
+            if state in self.final_states:
+                self.final_states.remove(state)
+            # also remove transitions that include unreachable states
+            if state in self.transitions.keys():
+                self.transitions.pop(state)
+
+        return unreachable_states
 
     # we generate state pairs where first will be final and second won't be final state
     def generate_state_final_pairs(self):
@@ -124,7 +126,11 @@ class DFA:
         states_not_in_eq_classes = [state for state in self.states if state not in set.union(
             *map(set, equivalent_classes))]
         # return set(equivalent_states)
-        return set(states_not_in_eq_classes + equivalent_classes)
+        result_set = list()
+
+        for state in states_not_in_eq_classes:
+            result_set.append((state,))
+        return set(result_set + equivalent_classes)
 
     def minimize_dfa(self):
         # first we remove unreachble states
@@ -141,7 +147,7 @@ class DFA:
         # we add keys in new_transition_function
         new_transition_function = {}
         for state in equivalent_classes:
-            new_transition_function[''.join(list(state))] = {}
+            new_transition_function[''.join(sorted(list(state)))] = {}
 
         # print(equivalent_classes)
 
@@ -154,7 +160,7 @@ class DFA:
                 if state == element:
                     for character in self.alphabet:
                         next_state = self.transitions[state][character]
-                        new_transition_function[''.join(list(state))][character] = self.find_next_state_eq(
+                        new_transition_function[''.join(sorted(list(state)))][character] = self.find_next_state_eq(
                             next_state, equivalent_classes)
 
                 elif state in element:
@@ -162,9 +168,9 @@ class DFA:
                         next_state = self.transitions[state][character]
                         if next_state in element:
                             new_transition_function[''.join(
-                                list(element))][character] = ''.join(list(element))
+                                sorted(list(element)))][character] = ''.join(sorted(list(element)))
                         else:
-                            new_transition_function[''.join(list(element))][character] = self.find_next_state_eq(
+                            new_transition_function[''.join(sorted(list(element)))][character] = self.find_next_state_eq(
                                 next_state, equivalent_classes)
         self.transitions = new_transition_function
 
@@ -186,4 +192,4 @@ class DFA:
     def find_next_state_eq(self, state, equivalent_classes):
         for element in equivalent_classes:
             if state in element:
-                return ''.join(list(element))
+                return ''.join(sorted(list(element)))

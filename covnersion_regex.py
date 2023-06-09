@@ -1,10 +1,10 @@
 import helpers.reg_exp_helper as regex_converter
 from helpers.fa_helper import FiniteAutomataHelper
 import helpers.graph_helper as graph_helper
-
+from models.dfa import DFA
 
 polish_regex = regex_converter.polish_regex(
-    '(c)(c)*((d)($))+(((a)((a)(b)+(b))+(d))($)+(((a)((a)(a)))(a)*($)+((a)((a)($)+($)))))')
+    '(abc+ab)+(abc)*')
 print(polish_regex)
 
 expression_tree = regex_converter.make_exp_tree(polish_regex)
@@ -13,33 +13,26 @@ finite_automata = regex_converter.compute_regex(expression_tree)
 regex_converter.arrange_nfa(finite_automata)
 
 nfa = regex_converter.change_nfa_form()
-print('--------')
-print(nfa.states)
-print('--------')
-print(nfa.final_states)
-print('--------')
-print(nfa.start_state)
-print('--------')
-print(nfa.alphabet)
-print('--------')
 
 nfa.enfa_to_nfa()
-for item in nfa.transitions.items():
-    print(item)
+
 
 helper = FiniteAutomataHelper()
-
 dfa = helper.nfa_to_dfa(nfa)
-print('-----NFA_STATES-----')
-print(len(dfa.states))
-print(len(dfa.final_states))
-print('-----NFA_STATES-----')
-print(dfa.start_state)
-print(dfa.final_states)
-for item in dfa.transitions.items():
-    print(item)
 
-dfa = dfa.minimize_dfa()
+dfa.minimize_dfa()
 
-print(len(dfa.states))
-print(len(dfa.final_states))
+
+start_state, final_states, transition_function, states = graph_helper.rename_states(
+    dfa.start_state, dfa.final_states, dfa.transitions)
+
+
+dfa = DFA(start_state, final_states, transition_function, dfa.alphabet, states)
+
+dfa = helper.handle_start_incoming(dfa)
+dfa = helper.handle_end_outgoing(dfa)
+
+hop_table = helper.get_input_symbol(dfa)
+
+
+print(helper.dfa_to_regex(hop_table, dfa.start_state, dfa.final_states, dfa))

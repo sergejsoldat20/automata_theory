@@ -33,6 +33,13 @@ class NFA:
 
     # this method converts epsylon nfa to nfa
     def enfa_to_nfa(self):
+        # if start state has epsylon transition to final state we add it to final_states
+        start_state_closure = self.epsylon_closure(self.start_state)
+        for state in start_state_closure:
+            if state in self.final_states:
+                self.final_states.add(self.start_state)
+                break
+
         # we create new transition function
         new_transition_function = dict()
 
