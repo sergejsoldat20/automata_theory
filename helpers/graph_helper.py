@@ -24,7 +24,8 @@ def bfs_dfa(transition_function, start_state):
 def rename_states(start_state, final_states, transition_function):
     # we do bfs and we get order of states
 
-    states_order = bfs_dfa(transition_function, start_state)
+    states_order = find_state_order(
+        transition_function, start_state, len(transition_function.keys()))
     # states_order = find_state_order(start_state, transition_function)
     # we create dictionary with states order and new states order
     new_order = {states_order[i]: 'r' +
@@ -48,28 +49,36 @@ def rename_states(start_state, final_states, transition_function):
     return new_start_state, new_final_states, new_transition_function, set(new_order.values())
 
 
-def dfs_dfa(transition_function, current_state, visited_states):
-    print(current_state)  # Print the current state
-    # Add the current state to the set of visited states
-    visited_states.add(current_state)
+def find_state_order(transition_function: dict, start_state, states_len: int):
+    alphabet = sorted(list(transition_function[start_state].keys()))
+    states_matrix = list()
 
-    # Iterate over the transitions for the current state
-    for symbol, next_state in transition_function[current_state].items():
-        if next_state not in visited_states:
-            # Recursively call DFS for the next state
-            dfs_dfa(transition_function, next_state, visited_states)
+    states_matrix.append([start_state])
 
-    return list(visited_states)
+    while True:
+
+        matrix_row = list()
+        for state in states_matrix[-1]:
+            for symbol in alphabet:
+                # print(transition_function[state][symbol])
+                if state_not_in_matrix(transition_function[state][symbol], states_matrix):
+                    if transition_function[state][symbol] not in matrix_row:
+                        matrix_row.append(transition_function[state][symbol])
+
+        states_matrix.append(matrix_row)
+        if sum(len(row) for row in states_matrix) == states_len:
+            break
+
+    states_order = list()
+    for row in states_matrix:
+        states_order += row
+
+    return states_order
 
 
-def find_state_order(start_state, transition_function):
-    state_order = [start_state]  # List to store the order of visited states
+def state_not_in_matrix(state, matrix):
+    for row in matrix:
+        if state in row:
+            return False
 
-    if start_state in transition_function:
-        transitions = transition_function[start_state]
-        print(transitions)
-        for symbol, next_state in transitions.items():
-            state_order.extend(find_state_order(
-                next_state, transition_function))
-
-    return state_order
+    return True

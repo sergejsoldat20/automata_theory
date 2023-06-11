@@ -11,7 +11,6 @@ transition_function = {
     ('q7', '$'): {'q8', 'q9'},
     ('q8', '0'): {'q10'},
     ('q10', '$'): {'q8', 'q9'},
-
 }
 
 start_state = 'q1'

@@ -39,11 +39,10 @@ class FiniteAutomataHelper:
                 successors.append(successor)
         return predecessors, successors
 
-    def check_state_loop(self, state, automata: DFA):
-        next_states = automata.transitions[state].values()
-        if state in next_states:
-            return True
-        return False
+    def check_state_loop(self, state, hop_table):
+        if hop_table[state][state] == '':
+            return False
+        return True
 
     def start_has_incoming(self, automata: DFA):
         check = False
@@ -105,7 +104,7 @@ class FiniteAutomataHelper:
                                 pre_suc_input_exp = '(' + \
                                     hop_table[predecessor][successor] + ')'
 
-                            if self.check_state_loop(state, automata):
+                            if self.check_state_loop(state, hop_table):
                                 self_loop_input_exp = '(' + \
                                     hop_table[state][state] + ')' + '*'
 
@@ -164,9 +163,6 @@ class FiniteAutomataHelper:
                 dfa_transition_function[self.join_tuple_elements(
                     states_tuple)][character] = self.join_tuple_elements(self.get_next_states(states_tuple, character, nfa))
 
-        for item in dfa_transition_function.items():
-            print(item)
-        print("----------------------")
         # we set new states for dfa, if we have given states like q0q1q2 they will be changed with p0
         # we use dictionary that is mapping old states combination with new states
         states_mapping = dict()

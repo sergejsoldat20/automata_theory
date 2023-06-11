@@ -1,12 +1,14 @@
 from models.dfa import DFA
 import json
+import helpers.reg_exp_helper as regex_converter
 from helpers.fa_helper import FiniteAutomataHelper
+import helpers.graph_helper as graph_helper
 
 start_state = 'q0'
 alphabet = {'a', 'b'}
 transition_function = {
     'q0': {'a': 'q6', 'b': 'q1'},
-    'q1': {'a': 'q0', 'b': 'q4'},
+    'q1': {'a': 'q2', 'b': 'q4'},
     'q2': {'a': 'q5', 'b': 'q3'},
     'q3': {'a': 'q8', 'b': 'q3'},
     'q4': {'a': 'q6', 'b': 'q8'},
@@ -21,66 +23,51 @@ final_states = {'q1', 'q4', 'q8'}
 states = {'q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10'}
 automata = DFA(start_state, final_states,
                transition_function, alphabet, states)
+automata.minimize_dfa()
 
-# print(automata.accept('aaba'))
+start, final, tf, sts = graph_helper.rename_states(automata.start_state,
+                                                   automata.final_states, automata.transitions)
+print(start)
+print(final)
+print(sts)
+for item in tf.items():
+    print(item)
 
-# print(automata.get_unreachable_state())
 
-# print(len(automata.generate_state_pairs()))
+helper = FiniteAutomataHelper()
 
-# print(automata.generate_state_pairs() - automata.generate_state_final_pairs())
+automata = helper.handle_start_incoming(automata)
+automata = helper.handle_end_outgoing(automata)
 
-# print(automata.get_equivalent_states())
+hop_table = helper.get_input_symbol(automata)
 
-# equivalent_pairs = automata.get_equivalent_states()
+regex = helper.dfa_to_regex(hop_table, automata.start_state,
+                            automata.final_states, automata)
 
-# print(automata.get_equivalent_classes(equivalent_pairs))
-automata_helper = FiniteAutomataHelper()
 
-# print(automata_helper.get_predecessors_successors("q3", automata))
-'''
-print(automata_helper.check_state_loop("q0", automata))
-print(automata_helper.check_state_loop("q7", automata))
-print(automata_helper.check_state_loop("q3", automata))
+polish_regex = regex_converter.polish_regex(
+    regex)
+print(polish_regex)
 
-print(automata_helper.start_has_incoming(automata))
-print("------------")
-'''
-start_state = 'q0'
-alphabet = {'a', 'b'}
-transition_function = {
-    'q0': {'a': 'q0', 'b': 'q1'},
-    'q1': {'a': 'q1', 'b': 'q2'},
-    'q2': {'a': 'q2', 'b': 'q2'},
-}
-final_states = {'q1', 'q2'}
-states = {'q0', 'q1', 'q2'}
-automata = DFA(start_state, final_states,
-               transition_function, alphabet, states)
-print("regex")
-automata = automata_helper.handle_start_incoming(automata)
-automata = automata_helper.handle_end_outgoing(automata)
-print(automata.start_state)
-print(automata.final_states)
-print(automata.transitions)
-print("============================================")
-hop_table = automata_helper.get_input_symbol(automata)
+expression_tree = regex_converter.make_exp_tree(polish_regex)
+finite_automata = regex_converter.compute_regex(expression_tree)
 
-# automata = automata_helper.handle_start_incoming(automata)
-# automata = automata_helper.handle_end_outgoing(automata)
+regex_converter.arrange_nfa(finite_automata)
 
-# hop_table = automata_helper.get_input_symbol(automata)
+nfa = regex_converter.change_nfa_form()
 
-for items in hop_table.items():
-    print(items)
+nfa.enfa_to_nfa()
 
-regex = automata_helper.dfa_to_regex(
-    hop_table, automata.start_state, automata.final_states, automata)
-print(regex)
 
-for state in states:
-    print('state-> ')
-    print(state)
-    print("-------")
-    print(automata_helper.get_predecessors_successors(
-        state, hop_table, automata)[0])
+helper = FiniteAutomataHelper()
+dfa = helper.nfa_to_dfa(nfa)
+
+dfa.minimize_dfa()
+
+start, final, tf1, sts = graph_helper.rename_states(dfa.start_state,
+                                                    dfa.final_states, dfa.transitions)
+print(start)
+print(final)
+print(sts)
+for item in tf1.items():
+    print(item)

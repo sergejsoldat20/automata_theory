@@ -4,7 +4,7 @@ import helpers.graph_helper as graph_helper
 from models.dfa import DFA
 
 polish_regex = regex_converter.polish_regex(
-    '(abc+ab)+(abc)*')
+    '(a+b+c)cd+(aa+bb)+(bcd)*')
 print(polish_regex)
 
 expression_tree = regex_converter.make_exp_tree(polish_regex)
@@ -21,13 +21,9 @@ helper = FiniteAutomataHelper()
 dfa = helper.nfa_to_dfa(nfa)
 
 dfa.minimize_dfa()
+# (аа|bb)|(a|b|c)cd|a(bcd)
+print(dfa.accept(''))
 
-
-start_state, final_states, transition_function, states = graph_helper.rename_states(
-    dfa.start_state, dfa.final_states, dfa.transitions)
-
-
-dfa = DFA(start_state, final_states, transition_function, dfa.alphabet, states)
 
 dfa = helper.handle_start_incoming(dfa)
 dfa = helper.handle_end_outgoing(dfa)
